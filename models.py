@@ -17,4 +17,4 @@ class Product(Base):
     date_updated = Column('Date Updated', Date)
 
     def __repr__(self):
-        return f'Product: {self.product_name} Quantity: {self.product_quantity} Price: {self.product_price} Date Updated: {self.date_updated}'
+        return f'\nProduct: {self.product_name}\nID#: {self.product_id}\nQuantity: {self.product_quantity}\nPrice: ${float(self.product_price/100)}\nDate Updated: {self.date_updated.strftime("%m/%d/%Y")}'
