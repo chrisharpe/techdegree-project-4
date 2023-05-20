@@ -45,15 +45,11 @@ def add_csv():
     for product in products:
         name_str = product['product_name']
         product['product_name'] = clean_name(name_str)
-    for product in products:
         price_str = product['product_price']
         product['product_price'] = clean_price(price_str)
-    for product in products:
         product['product_quantity'] = int(product['product_quantity'])
-    for product in products:
         date_str = product['date_updated']
         product['date_updated'] = clean_date(date_str)
-    for product in products:
         existing_product = session.query(Product).filter_by(
             product_name=product['product_name']).first()
         if existing_product == None:
@@ -84,8 +80,7 @@ def menu():
         else:
             print('''
             \nSorry, please enter a valid option:
-            \rExample:
-            \rv''')
+            \rExample:  v\n''')
 
 
 def view_product():
@@ -104,7 +99,9 @@ def view_product():
             print(product_selection)
             break
         else:
-            print('\nInvalid product ID. Please try again.')
+            print('''
+                    \nInvalid product ID. Please enter a product ID from the list above.
+                    \rExample:  12\n''')
 
 
 def add_product():
@@ -148,21 +145,26 @@ def add_product():
                             \r>>> '''))
             except ValueError:
                 print("Sorry, that's not a valid input. Please enter 1 or 2")
+                time.sleep(2)
             else:
                 if save == 1:
                     print('Working...')
                     time.sleep(2)
                     session.add(new_product)
                     session.commit()
+                    print(new_product)
                     input('\nProduct added! Press enter to continue')
                 elif save == 2:
-                    print('\nOperation canceled')
+                    input('\nOperation canceled. Press enter to continue...')
                     return
     elif existing_product is not None:
-        print('This product already exsists.')
+        print(existing_product)
+        print('\nThis product already exsists.')
         while True:
             update = input('\nEnter "u" to update it, or "c" to cancel:  ')
             if update.lower() == 'u':
+                print('Working...')
+                time.sleep(2)
                 existing_product.product_price = product_price
                 existing_product.product_quantity = product_quantity
                 existing_product.date_updated = datetime.now()
@@ -170,11 +172,23 @@ def add_product():
                 input('\nThe product has been updated! Press enter to continue...')
                 break
             elif update.lower() == 'c':
+                input(
+                    '\nOperation canceled. The changes were not saved. Press enter to continue...')
                 return
             else:
                 print("""
                 \nSorry, that's not a valid entry.
                 \rPlease enter 'u' or 'c'. Example:  u""")
+
+
+def revert_date(datetime_obj):
+    reverted_date = datetime_obj.strftime("%m/%d/%Y")
+    return str(reverted_date)
+
+
+def revert_price(price_int):
+    reverted_price = '${:,.2f}'.format(price_int/100)
+    return reverted_price
 
 
 def backup_database():
@@ -184,12 +198,13 @@ def backup_database():
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(
-            ['product_id', 'product_name',
-             'product_price', 'product_quantity', 'date_updated'])
+            ['product_name', 'product_price', 'product_quantity', 'date_updated'])
         for product in products:
-            writer.writerow([product.product_id, product.product_name,
-                            product.product_price, product.product_quantity,
-                            product.date_updated])
+            writer.writerow([
+                product.product_name,
+                revert_price(product.product_price),
+                product.product_quantity,
+                revert_date(product.date_updated)])
     time.sleep(2)
     print(f'\nDatabase backup created successfully in {filename}')
 
