@@ -1,6 +1,6 @@
 from models import (Base, session, Product, engine)
 import csv
-from datetime import datetime
+import datetime
 import time
 
 
@@ -11,7 +11,7 @@ def clean_name(name_str):
 
 def clean_price(price_str):
     try:
-        clean_price = price_str.replace('$', '')
+        clean_price = price_str.replace('$', '').replace(',', '')
         clean_price = int(float(clean_price) * 100)
     except ValueError:
         print('''
@@ -23,7 +23,8 @@ def clean_price(price_str):
 
 def clean_date(date_str):
     try:
-        date_obj = datetime.strptime(date_str, '%m/%d/%Y')
+        date_obj = datetime.datetime.strptime(date_str, '%m/%d/%Y')
+        date_obj = date_obj.date()
     except ValueError:
         print('''
         \nSorry, there was an error accepting the date value.
@@ -122,7 +123,7 @@ def add_product():
         product_price = clean_price(product_price)
         if type(product_price) == int:
             price_error = False
-    date_updated = datetime.now()
+    date_updated = datetime.datetime.now().date()
     print('Working...')
     time.sleep(2)
     existing_product = session.query(
@@ -167,7 +168,7 @@ def add_product():
                 time.sleep(2)
                 existing_product.product_price = product_price
                 existing_product.product_quantity = product_quantity
-                existing_product.date_updated = datetime.now()
+                existing_product.date_updated = datetime.datetime.now().date()
                 print(f'\n{existing_product}')
                 input('\nThe product has been updated! Press enter to continue...')
                 break
@@ -181,8 +182,8 @@ def add_product():
                 \rPlease enter 'u' or 'c'. Example:  u""")
 
 
-def revert_date(datetime_obj):
-    reverted_date = datetime_obj.strftime("%m/%d/%Y")
+def revert_date(date_obj):
+    reverted_date = date_obj.strftime("%m/%d/%Y")
     return str(reverted_date)
 
 
